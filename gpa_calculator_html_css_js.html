@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Basic -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="author" content="Joy Sameza" />
+    <meta
+      name="description"
+      content="GPA Calculator — lightweight single-file app to manage multi-year and multi-semester grades with resit handling, editable grade scale, local save/load, and JSON/CSV export."
+    />
+    <meta
+      name="keywords"
+      content="GPA calculator, grade calculator, academic planner, student tools, resit, carry over, javascript, localstorage, CSV export, JSON import"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://funSamy.github.io/gpa-calculator" />
+
+    <!-- Open Graph (rich previews for social & messaging) -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="GPA Calculator — Multi-Year & Semester"
+    />
+    <meta
+      property="og:description"
+      content="Lightweight single-file GPA calculator for managing years, semesters, resits and carry-overs. Save locally, export/import JSON, and export CSV."
+    />
+    <meta
+      property="og:url"
+      content="https://funSamy.github.io/gpa-calculator"
+    />
+    <meta property="og:site_name" content="GPA Calculator" />
+    <!-- optional: replace with a screenshot or logo -->
+    <!-- <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/funSamy/gpa-calculator/main/preview.png"
+    /> -->
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="GPA Calculator — Multi-Year & Semester"
+    />
+    <meta
+      name="twitter:description"
+      content="Track grades across academic years and semesters with resit handling, editable grade scale, and export/import features."
+    />
+    <!-- <meta
+      name="twitter:image"
+      content="https://raw.githubusercontent.com/funSamy/gpa-calculator/main/preview.png"
+    /> -->
+
+    <!-- Schema.org JSON-LD (software application) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "GPA Calculator — Multi-Year & Semester",
+        "operatingSystem": "Web",
+        "applicationCategory": "Education",
+        "description": "Lightweight single-file GPA calculator to manage multiple academic years and semesters, resit handling, editable grade scale, local save/load, and JSON/CSV export.",
+        "url": "https://funSamy.github.io/gpa-calculator",
+        "author": {
+          "@type": "Person",
+          "name": "Joy Sameza"
+        }
+      }
+    </script>
+
+    <title>GPA Calculator — Multi-year & Semester</title>
+    <style>
+      :root {
+        --bg: #f6f8fb;
+        --card: #ffffff;
+        --accent: #3b82f6;
+        --muted: #6b7280;
+        --success: #10b981;
+        --danger: #ef4444;
+        --radius: 12px;
+        --glass: rgba(255, 255, 255, 0.6);
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+        color: #111827;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 24px auto;
+        padding: 18px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0;
+      }
+      p.lead {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: 0 6px 20px rgba(31, 41, 55, 0.06);
+        padding: 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 18px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      thead th {
+        background: linear-gradient(
+          180deg,
+          rgba(59, 130, 246, 0.06),
+          rgba(59, 130, 246, 0.02)
+        );
+        padding: 10px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: #0f172a;
+      }
+      tbody td {
+        padding: 10px;
+        border-top: 1px solid #eef2f6;
+      }
+      input[type="number"],
+      input[type="text"],
+      select {
+        width: 100%;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #e6edf3;
+        background: transparent;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button.ghost {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid rgba(59, 130, 246, 0.12);
+      }
+      button.warn {
+        background: var(--danger);
+      }
+      .small {
+        padding: 6px 8px;
+        font-size: 13px;
+      }
+
+      .right {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .tile {
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.5),
+          var(--glass)
+        );
+        border: 1px solid rgba(15, 23, 42, 0.03);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .semester-cards {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .sem-card {
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(118, 128, 150, 0.849);
+        background: linear-gradient(180deg, #fff, #fbfdff);
+        cursor: pointer;
+        width: 110px;
+      }
+      .sem-card.active,
+      .sem-card.active:is(:focus, :focus-visible, :focus-within) {
+        box-shadow: 0 6px 18px rgba(255, 0, 242, 0.151);
+        border-color: rgb(255, 0, 242);
+        border-width: 2px;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .totals {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        justify-content: space-between;
+      }
+      .totals .value {
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .small-note {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .form-inline {
+        display: grid;
+        grid-template-columns: 1fr 90px 100px 90px 40px;
+        gap: 8px;
+        align-items: center;
+      }
+      .form-inline input,
+      .form-inline select {
+        padding: 8px;
+        border-radius: 8px;
+      }
+
+      /* Overall Stats Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 24px;
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(31, 41, 55, 0.2);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #eef2f6;
+      }
+      .modal-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #111827;
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: var(--muted);
+        padding: 4px 8px;
+      }
+      .close-btn:hover {
+        color: #111827;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .stat-card {
+        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        text-align: center;
+      }
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+      .stat-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .year-breakdown {
+        margin-top: 20px;
+      }
+      .year-breakdown h3 {
+        margin: 0 0 16px 0;
+        font-size: 18px;
+        color: #111827;
+      }
+      .year-stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+      .year-stats-table th,
+      .year-stats-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eef2f6;
+      }
+      .year-stats-table th {
+        background: linear-gradient(
+          180deg,
+          rgba(59, 130, 246, 0.06),
+          rgba(59, 130, 246, 0.02)
+        );
+        font-weight: 600;
+        font-size: 13px;
+        color: #0f172a;
+      }
+      .year-stats-table td {
+        color: #374151;
+      }
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .right {
+          order: 2;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+        .modal {
+          width: 95%;
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div>
+          <h1>GPA Calculator — multi-year & semester</h1>
+          <p class="lead">
+            Manage academic years, semesters (First, Second, Resit), carry-overs
+            and resits. Save/load data or export/import JSON.
+          </p>
+        </div>
+        <div class="actions">
+          <button id="viewOverall" class="small ghost">
+            View Overall Stats
+          </button>
+          <button id="exportJSON" class="small">Export JSON</button>
+          <button id="importJSONBtn" class="small ghost">Import JSON</button>
+          <input
+            id="importJSON"
+            type="file"
+            accept="application/json"
+            style="display: none"
+          />
+        </div>
+      </header>
+
+      <div class="grid">
+        <main class="card" id="mainPanel">
+          <div class="controls-row">
+            <label style="font-weight: 600">Academic year:</label>
+            <select id="yearSelect"></select>
+            <button id="addYear" class="small ghost">+ Year</button>
+            <button id="delYear" class="small ghost">Delete</button>
+
+            <div
+              style="
+                margin-left: auto;
+                display: flex;
+                gap: 8px;
+                align-items: center;
+              "
+            >
+              <button id="saveLocal" class="small ghost">Save locally</button>
+              <button id="loadLocal" class="small">Load saved</button>
+            </div>
+          </div>
+
+          <div id="semesterArea">
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+              "
+            >
+              <div>
+                <strong id="yearTitle">Year</strong>
+                <div class="small-note" id="yearSummary">
+                  Year summary will appear here
+                </div>
+              </div>
+              <div>
+                <button id="addSemester" class="small">+ Semester</button>
+              </div>
+            </div>
+
+            <div class="semester-cards" id="semesterCards"></div>
+
+            <div style="margin-top: 12px">
+              <form
+                id="addCourseForm"
+                class="form-inline"
+                onsubmit="return false;"
+              >
+                <input id="courseName" placeholder="Course name / code" />
+                <input
+                  id="courseCredits"
+                  type="number"
+                  step="0.5"
+                  placeholder="Credits"
+                />
+                <select id="courseLetter"></select>
+                <label style="display: flex; align-items: center; gap: 6px"
+                  ><input id="carryOver" type="checkbox" />Carry</label
+                >
+                <button id="addCourseBtn" class="small">Add</button>
+              </form>
+            </div>
+
+            <div style="margin-top: 12px; overflow: auto">
+              <table aria-label="Courses table">
+                <thead>
+                  <tr>
+                    <th style="width: 36%">Course name / code</th>
+                    <th style="width: 10%">Credits</th>
+                    <th style="width: 14%">Letter Grade</th>
+                    <th style="width: 14%">Grade Value</th>
+                    <th style="width: 14%">Quality Points</th>
+                    <th style="width: 12%">Flags</th>
+                  </tr>
+                </thead>
+                <tbody id="coursesTable"></tbody>
+              </table>
+            </div>
+
+            <div
+              style="
+                margin-top: 12px;
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                align-items: center;
+              "
+            >
+              <div class="muted">
+                Note: A resit or later attempt of the same course code will be
+                used as the effective grade for cumulative earned credits.
+                Earlier attempts remain visible and count as attempted credits.
+              </div>
+              <div style="text-align: right">
+                <div class="small-note">Semester attempted</div>
+                <div class="value" id="semAttempted">0</div>
+                <div class="small-note">Semester earned</div>
+                <div class="value" id="semEarned">0</div>
+                <div class="small-note">Semester GPA</div>
+                <div class="value" id="semGPA">0.000</div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <aside class="right">
+          <div class="tile card">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <strong>Grade scale</strong>
+              <button id="applyScale" class="ghost small">Apply</button>
+            </div>
+            <div style="margin-top: 8px; color: var(--muted); font-size: 13px">
+              Edit numeric values, then Apply to update calculations.
+            </div>
+            <div
+              id="scaleEditor"
+              style="margin-top: 12px; display: grid; gap: 8px"
+            ></div>
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                margin-top: 8px;
+                align-items: center;
+              "
+            >
+              <input
+                id="newGradeLetter"
+                placeholder="Grade (e.g. A-)"
+                style="
+                  padding: 8px;
+                  border-radius: 8px;
+                  border: 1px solid #e6edf3;
+                "
+              />
+              <input
+                id="newGradeValue"
+                type="number"
+                step="0.01"
+                placeholder="Value"
+                style="
+                  width: 100px;
+                  padding: 8px;
+                  border-radius: 8px;
+                  border: 1px solid #e6edf3;
+                "
+              />
+              <button id="addGradeBtn" class="small ghost">Add grade</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 12px">
+              <button id="restoreDefaults" class="small ghost">
+                Restore defaults
+              </button>
+            </div>
+          </div>
+
+          <div class="tile">
+            <strong>Academic year summary</strong>
+            <div
+              style="margin-top: 8px; color: var(--muted); font-size: 13px"
+              id="yearCardsContainer"
+            ></div>
+            <div style="margin-top: 10px" id="yearTotals"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Overall Stats Modal -->
+    <div id="overallModal" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Overall Academic Statistics</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+
+        <div class="stats-grid" id="overallStatsGrid">
+          <!-- Overall stats will be populated here -->
+        </div>
+
+        <div class="year-breakdown">
+          <h3>Year-by-Year Breakdown</h3>
+          <table class="year-stats-table">
+            <thead>
+              <tr>
+                <th>Academic Year</th>
+                <th>Attempted</th>
+                <th>Earned</th>
+                <th>Cumulative GPA</th>
+                <th>Courses</th>
+              </tr>
+            </thead>
+            <tbody id="yearBreakdownTable">
+              <!-- Year breakdown will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- Data model ---
+      const defaultScale = [
+        ["A", 4.0],
+        ["B+", 3.5],
+        ["B", 3.0],
+        ["C+", 2.5],
+        ["C", 2.0],
+        ["D+", 1.5],
+        ["D", 1.0],
+        ["F", 0.0],
+      ];
+
+      // structure: { gradeScale: [...], years: [ {id,label,semesters:[{id,name,order,courses:[{id,name,credits,letter,carry,ts}]}], createdAt }] }
+      let state = { gradeScale: structuredClone(defaultScale), years: [] };
+      let selectedYearIdx = -1;
+      let selectedSemesterIdx = -1;
+
+      // DOM
+      const yearSelect = document.getElementById("yearSelect");
+      const semesterCards = document.getElementById("semesterCards");
+      const coursesTable = document.getElementById("coursesTable");
+      const courseLetter = document.getElementById("courseLetter");
+
+      // init
+      function id() {
+        return Math.random().toString(36).slice(2, 9);
+      }
+
+      function ensureInitial() {
+        if (state.years.length === 0) {
+          const y = addYear(
+            `Year ${new Date().getFullYear()}/${new Date().getFullYear() + 1}`
+          );
+          addSemesterToYear(y, "First");
+          addSemesterToYear(y, "Second");
+          addSemesterToYear(y, "Resit");
+          selectedYearIdx = 0;
+          selectedSemesterIdx = 0;
+          saveLocal(false);
+        }
+      }
+
+      // --- Year & Semester management ---
+      function addYear(label) {
+        const newYear = {
+          id: id(),
+          label: label || `Year ${state.years.length + 1}`,
+          semesters: [],
+          createdAt: Date.now(),
+        };
+        state.years.push(newYear);
+        renderYears();
+        return state.years.length - 1;
+      }
+      function deleteYear(idx) {
+        if (idx < 0 || idx >= state.years.length) return;
+        state.years.splice(idx, 1);
+        selectedYearIdx = Math.min(state.years.length - 1, idx - 1);
+        renderAll();
+      }
+
+      function addSemesterToYear(yearIdx, name) {
+        const year = state.years[yearIdx];
+        const ord = year.semesters.length;
+        year.semesters.push({
+          id: id(),
+          name: name || `Sem ${ord + 1}`,
+          order: ord,
+          courses: [],
+        });
+        renderAll();
+        return year.semesters.length - 1;
+      }
+
+      function addCourseToSemester(yearIdx, semIdx, course) {
+        const sem = state.years[yearIdx].semesters[semIdx];
+        const c = Object.assign({ id: id(), ts: Date.now() }, course);
+        sem.courses.push(c);
+        renderSemester();
+      }
+
+      function updateCourse(yearIdx, semIdx, courseId, patch) {
+        const sem = state.years[yearIdx].semesters[semIdx];
+        const c = sem.courses.find((x) => x.id === courseId);
+        if (!c) return;
+        Object.assign(c, patch);
+        c.ts = Date.now();
+        renderSemester();
+      }
+
+      function removeCourse(yearIdx, semIdx, courseId) {
+        const sem = state.years[yearIdx].semesters[semIdx];
+        const idx = sem.courses.findIndex((x) => x.id === courseId);
+        if (idx >= 0) sem.courses.splice(idx, 1);
+        renderSemester();
+      }
+
+      // --- Calculations ---
+      function lookupGrade(letter) {
+        const g = state.gradeScale.find((x) => x[0] === letter);
+        return g ? Number(g[1]) : NaN;
+      }
+
+      // Calculate overall statistics across all years
+      function calculateOverallStats() {
+        if (state.years.length === 0) {
+          return {
+            totalAttempted: 0,
+            totalEarned: 0,
+            overallGPA: 0,
+            totalCourses: 0,
+            totalCreditValue: 0,
+            uniqueCourses: 0,
+          };
+        }
+
+        // Get all unique courses with their latest attempts
+        const latestByCourse = {};
+        let totalAttempted = 0;
+        let totalCourses = 0;
+        let totalCreditValue = 0;
+
+        // Process all years and semesters
+        for (const year of state.years) {
+          for (const sem of year.semesters) {
+            for (const c of sem.courses) {
+              totalCourses++;
+              const credits = Number(c.credits) || 0;
+              totalAttempted += credits;
+
+              const gv = lookupGrade(c.letter);
+              if (isFinite(gv)) {
+                totalCreditValue += credits * gv;
+              }
+
+              // Track latest attempt for each unique course
+              const key = (c.name || "").trim().toUpperCase();
+              if (
+                key &&
+                (!latestByCourse[key] || c.ts > latestByCourse[key].ts)
+              ) {
+                latestByCourse[key] = {
+                  credits: credits,
+                  gv: gv,
+                  ts: c.ts,
+                };
+              }
+            }
+          }
+        }
+
+        // Calculate earned credits and cumulative GPA based on latest attempts
+        let totalEarned = 0;
+        let cumulativeAttempted = 0;
+        let cumulativeQP = 0;
+
+        for (const courseData of Object.values(latestByCourse)) {
+          cumulativeAttempted += courseData.credits;
+          if (isFinite(courseData.gv)) {
+            cumulativeQP += courseData.credits * courseData.gv;
+            if (courseData.gv > 0) {
+              totalEarned += courseData.credits;
+            }
+          }
+        }
+
+        const overallGPA = cumulativeAttempted
+          ? cumulativeQP / cumulativeAttempted
+          : 0;
+
+        return {
+          totalAttempted,
+          totalEarned,
+          overallGPA,
+          totalCourses,
+          totalCreditValue,
+          uniqueCourses: Object.keys(latestByCourse).length,
+        };
+      }
+
+      function semesterStats(yearIdx, semIdx) {
+        const sem = state.years[yearIdx].semesters[semIdx];
+        let attempted = 0,
+          qpTotal = 0,
+          earned = 0;
+        for (const c of sem.courses) {
+          const cr = Number(c.credits) || 0;
+          const gv = lookupGrade(c.letter);
+          attempted += cr;
+          if (isFinite(gv)) {
+            qpTotal += cr * gv;
+            if (gv > 0) earned += cr;
+          }
+        }
+        const gpa = attempted ? qpTotal / attempted : 0;
+        return { attempted, earned, gpa, qpTotal };
+      }
+
+      // For year totals: total attempted (sum of all semester attempted), total earned for year: for each unique course code across all semesters in the year (and optionally previous years when carry happens), use latest attempt up to that year to determine earned.
+      function yearStats(yearIdx) {
+        const year = state.years[yearIdx];
+        // attempted = sum of attempted credits in year
+        let attempted = 0;
+        for (const s of year.semesters) {
+          for (const c of s.courses) {
+            attempted += Number(c.credits) || 0;
+          }
+        }
+
+        // To compute earned for the year, we consider latest attempt for each course code up to and including this year across all years (so carries/resits in later years override earlier ones)
+        const latestByCourse = {}; // key: name/code, value: {credits, gv, ts}
+        for (let yi = 0; yi <= yearIdx; yi++) {
+          for (const sem of state.years[yi].semesters) {
+            for (const c of sem.courses) {
+              const key = (c.name || "").trim().toUpperCase();
+              if (!key) continue;
+              if (!latestByCourse[key] || c.ts > latestByCourse[key].ts) {
+                latestByCourse[key] = {
+                  credits: Number(c.credits) || 0,
+                  gv: lookupGrade(c.letter),
+                  ts: c.ts,
+                };
+              }
+            }
+          }
+        }
+        let earned = 0;
+        let cumulativeAttempted = 0;
+        let cumulativeQP = 0;
+        for (const k of Object.keys(latestByCourse)) {
+          const v = latestByCourse[k];
+          cumulativeAttempted += v.credits;
+          cumulativeQP += v.credits * (isFinite(v.gv) ? v.gv : 0);
+          if (isFinite(v.gv) && v.gv > 0) earned += v.credits;
+        }
+        const cumulativeGPA = cumulativeAttempted
+          ? cumulativeQP / cumulativeAttempted
+          : 0;
+        return { attempted, earned, cumulativeAttempted, cumulativeGPA };
+      }
+
+      // --- Rendering ---
+      function renderYears() {
+        yearSelect.innerHTML = "";
+        state.years.forEach((y, idx) => {
+          const opt = document.createElement("option");
+          opt.value = idx;
+          opt.textContent = y.label;
+          yearSelect.appendChild(opt);
+        });
+        if (selectedYearIdx < 0 && state.years.length > 0) selectedYearIdx = 0;
+        yearSelect.value = selectedYearIdx;
+        renderSemesters();
+      }
+
+      function renderSemesters() {
+        semesterCards.innerHTML = "";
+        if (selectedYearIdx < 0) return;
+        const year = state.years[selectedYearIdx];
+        document.getElementById("yearTitle").textContent = year.label;
+        state.years[selectedYearIdx].semesters.forEach((s, si) => {
+          const d = document.createElement("div");
+          d.className =
+            "sem-card" + (si === selectedSemesterIdx ? " active" : "");
+          const stats = semesterStats(selectedYearIdx, si);
+          d.innerHTML = `<div style="font-weight:700">${
+            s.name
+          }</div><div class="small-note">GPA: ${stats.gpa.toFixed(
+            3
+          )}</div><div class="small-note">Att:${stats.attempted} Earn:${
+            stats.earned
+          }</div>`;
+          d.addEventListener("click", () => {
+            selectedSemesterIdx = si;
+            renderSemesters();
+            renderSemester();
+          });
+          d.tabIndex = 0;
+          semesterCards.appendChild(d);
+        });
+        renderYearSummary();
+      }
+
+      function renderYearSummary() {
+        const y = state.years[selectedYearIdx];
+        const ys = yearStats(selectedYearIdx);
+        document.getElementById("yearSummary").textContent = `Year attempted: ${
+          ys.attempted
+        } \n— Year earned (latest attempts up to year): ${
+          ys.earned
+        } \n— Cumulative credits: ${
+          ys.cumulativeAttempted
+        } \n— Cumulative GPA: ${ys.cumulativeGPA.toFixed(3)}`;
+
+        // render small cards in right panel
+        const container = document.getElementById("yearCardsContainer");
+        container.innerHTML = "";
+        y.semesters.forEach((s, si) => {
+          const card = document.createElement("div");
+          card.className = "tile";
+          card.style.marginTop = "8px";
+          const st = semesterStats(selectedYearIdx, si);
+          card.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>${
+            s.name
+          }</strong><div>${st.gpa.toFixed(
+            3
+          )}</div></div><div class="small-note">Att: ${st.attempted} • Earn: ${
+            st.earned
+          }</div>`;
+          card.addEventListener("click", () => {
+            selectedSemesterIdx = si;
+            renderSemesters();
+            renderSemester();
+          });
+          container.appendChild(card);
+        });
+
+        // totals area
+        const totals = document.getElementById("yearTotals");
+        totals.innerHTML = `<div style="margin-top:10px">Year attempted: <strong>${
+          ys.attempted
+        }</strong><br>Year earned (effective latest): <strong>${
+          ys.earned
+        }</strong><br>Cumulative credits (up to year): <strong>${
+          ys.cumulativeAttempted
+        }</strong><br>Cumulative GPA (up to year): <strong>${ys.cumulativeGPA.toFixed(
+          3
+        )}</strong></div>`;
+      }
+
+      function renderSemester() {
+        coursesTable.innerHTML = "";
+        if (selectedYearIdx < 0 || selectedSemesterIdx < 0) return;
+        const sem = state.years[selectedYearIdx].semesters[selectedSemesterIdx];
+        for (const c of sem.courses) {
+          const tr = document.createElement("tr");
+          const gv = lookupGrade(c.letter);
+          const qp = (Number(c.credits) || 0) * (isFinite(gv) ? gv : 0);
+          // determine if overridden by a later attempt (same course name) in later semesters (in same year or in later years up to current overall)
+          const overridden = findLaterAttemptForCourse(
+            c.name,
+            selectedYearIdx,
+            selectedSemesterIdx,
+            c.ts
+          );
+          tr.innerHTML = `
+                <td><input data-id="${
+                  c.id
+                }" class="course-name" value="${escapeHtml(
+            c.name || ""
+          )}" /></td>
+                <td><input data-id="${
+                  c.id
+                }" type="number" step="0.5" class="course-credits" value="${
+            c.credits || ""
+          }" /></td>
+                <td><select style="width: 100%" data-id="${
+                  c.id
+                }" class="course-letter">${state.gradeScale
+            .map(
+              (g) =>
+                `<option value="${g[0]}" ${
+                  g[0] === c.letter ? "selected" : ""
+                }>${g[0]}</option>`
+            )
+            .join("")}</select></td>
+                <td><input readonly class="course-gv" value="${
+                  isFinite(gv) ? gv.toFixed(2) : ""
+                }" /></td>
+                <td><input readonly class="course-qp" value="${
+                  isFinite(qp) ? qp.toFixed(2) : ""
+                }" /></td>
+                <td>${c.carry ? '<span class="small-note">Carry</span>' : ""} ${
+            overridden
+              ? '<span style="color:var(--muted);font-size:12px">Overridden</span>'
+              : ""
+          } <div style="margin-top:6px"><button data-id="${
+            c.id
+          }" class="small ghost">Remove</button></div></td>
+              `;
+          // wire
+          tr.querySelector(".course-name").addEventListener("change", (e) => {
+            updateCourse(selectedYearIdx, selectedSemesterIdx, c.id, {
+              name: e.target.value,
+            });
+          });
+          tr.querySelector(".course-credits").addEventListener("input", (e) => {
+            updateCourse(selectedYearIdx, selectedSemesterIdx, c.id, {
+              credits: Number(e.target.value),
+            });
+          });
+          tr.querySelector(".course-letter").addEventListener("change", (e) => {
+            updateCourse(selectedYearIdx, selectedSemesterIdx, c.id, {
+              letter: e.target.value,
+            });
+          });
+          tr.querySelector("button").addEventListener("click", () => {
+            if (confirm("Remove this course?"))
+              removeCourse(selectedYearIdx, selectedSemesterIdx, c.id);
+          });
+
+          coursesTable.appendChild(tr);
+        }
+
+        // update semester right summary
+        const st = semesterStats(selectedYearIdx, selectedSemesterIdx);
+        document.getElementById("semAttempted").textContent = st.attempted;
+        document.getElementById("semEarned").textContent = st.earned;
+        document.getElementById("semGPA").textContent = st.gpa.toFixed(3);
+
+        renderSemesters();
+      }
+
+      function findLaterAttemptForCourse(name, yearIdx, semIdx, ts) {
+        if (!name) return false;
+        const key = name.trim().toUpperCase();
+        // search in same year, later semesters
+        const year = state.years[yearIdx];
+        for (let sI = semIdx + 1; sI < year.semesters.length; sI++) {
+          for (const c of year.semesters[sI].courses) {
+            if ((c.name || "").trim().toUpperCase() === key) return true;
+          }
+        }
+        // search in later years
+        for (let y = yearIdx + 1; y < state.years.length; y++) {
+          for (const sem of state.years[y].semesters) {
+            for (const c of sem.courses) {
+              if ((c.name || "").trim().toUpperCase() === key) return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      // --- UI actions ---
+      document.getElementById("addYear").addEventListener("click", () => {
+        const label = prompt(
+          "Label for new academic year (e.g. 2024/2025):",
+          ""
+        );
+        if (label) {
+          const idx = addYear(label);
+          addSemesterToYear(idx, "First");
+          addSemesterToYear(idx, "Second");
+          addSemesterToYear(idx, "Resit");
+          selectedYearIdx = idx;
+          selectedSemesterIdx = 0;
+          renderAll();
+        }
+      });
+      document.getElementById("delYear").addEventListener("click", () => {
+        if (selectedYearIdx < 0) return;
+        if (confirm("Delete this academic year and all its data?"))
+          deleteYear(selectedYearIdx);
+        saveLocal();
+      });
+      document.getElementById("addSemester").addEventListener("click", () => {
+        const name = prompt("Semester name", "NewSem");
+        if (name) {
+          addSemesterToYear(selectedYearIdx, name);
+          selectedSemesterIdx =
+            state.years[selectedYearIdx].semesters.length - 1;
+          renderAll();
+        }
+      });
+
+      yearSelect.addEventListener("change", (e) => {
+        selectedYearIdx = Number(e.target.value);
+        selectedSemesterIdx = 0;
+        renderAll();
+      });
+
+      // course letter dropdown
+      function renderGradeOptions() {
+        courseLetter.innerHTML = "";
+        state.gradeScale.forEach((g) => {
+          const o = document.createElement("option");
+          o.value = g[0];
+          o.textContent = g[0];
+          courseLetter.appendChild(o);
+        });
+      }
+
+      document.getElementById("addCourseBtn").addEventListener("click", () => {
+        const name = document.getElementById("courseName").value.trim();
+        const credits =
+          Number(document.getElementById("courseCredits").value) || 0;
+        const letter = document.getElementById("courseLetter").value;
+        const carry = document.getElementById("carryOver").checked;
+        if (!name) {
+          alert("Enter course name");
+          return;
+        }
+        addCourseToSemester(selectedYearIdx, selectedSemesterIdx, {
+          name,
+          credits,
+          letter,
+          carry,
+        });
+        document.getElementById("courseName").value = "";
+        document.getElementById("courseCredits").value = "";
+        document.getElementById("carryOver").checked = false;
+        saveLocal();
+      });
+
+      // --- Grade scale editor ---
+      const scaleEditor = document.getElementById("scaleEditor");
+      function renderScaleEditor() {
+        scaleEditor.innerHTML = "";
+        state.gradeScale.forEach(([letter, val], idx) => {
+          const row = document.createElement("div");
+          row.className = "scale-row";
+          row.style.display = "flex";
+          row.style.gap = "8px";
+          row.style.alignItems = "center";
+          row.innerHTML = `
+            <div style="width:60px;font-weight:600">${escapeHtml(letter)}</div>
+            <input data-letter="${escapeHtml(
+              letter
+            )}" data-idx="${idx}" type="number" step="0.01" value="${val}" style="flex:1;padding:6px;border-radius:6px;border:1px solid #e6edf3;" />
+            <button data-idx="${idx}" class="small ghost remove-grade">Remove</button>
+          `;
+          scaleEditor.appendChild(row);
+        });
+        renderGradeOptions();
+        // wire remove buttons
+        Array.from(scaleEditor.querySelectorAll(".remove-grade")).forEach(
+          (btn) => {
+            btn.addEventListener("click", (e) => {
+              const i = Number(btn.dataset.idx);
+              if (!isNaN(i)) {
+                if (!confirm('Remove grade "' + state.gradeScale[i][0] + '"?'))
+                  return;
+                state.gradeScale.splice(i, 1);
+                renderScaleEditor();
+                renderSemester();
+                saveLocal();
+              }
+            });
+          }
+        );
+      }
+      function normalizeLetter(s) {
+        return (s || "").toString().trim().toUpperCase();
+      }
+      document.getElementById("applyScale").addEventListener("click", () => {
+        // Rebuild scale from existing inputs in order
+        const rows = Array.from(scaleEditor.querySelectorAll(".scale-row"));
+        const newScale = [];
+        for (const r of rows) {
+          const inp = r.querySelector("input");
+          if (!inp) continue;
+          const letter = inp.dataset.letter || "";
+          const val = Number(inp.value);
+          if (!letter) continue;
+          if (!isFinite(val)) {
+            alert("Invalid numeric value for " + letter);
+            return;
+          }
+          newScale.push([letter, val]);
+        }
+        // If no rows found, keep defaults
+        if (newScale.length === 0) {
+          alert("Grade scale cannot be empty");
+          return;
+        }
+        state.gradeScale = newScale;
+        renderGradeOptions();
+        renderSemester();
+        saveLocal();
+      });
+      // add new grade
+      document.getElementById("addGradeBtn").addEventListener("click", () => {
+        const letterInp = document.getElementById("newGradeLetter");
+        const valInp = document.getElementById("newGradeValue");
+        const letterRaw = letterInp.value;
+        const letter = normalizeLetter(letterRaw);
+        const val = Number(valInp.value);
+        if (!letter) {
+          alert("Enter a grade letter");
+          return;
+        }
+        if (!isFinite(val)) {
+          alert("Enter a numeric value for the grade");
+          return;
+        }
+        // prevent duplicates
+        if (state.gradeScale.some((g) => normalizeLetter(g[0]) === letter)) {
+          alert("Grade already exists");
+          return;
+        }
+        state.gradeScale.push([letter, val]);
+        letterInp.value = "";
+        valInp.value = "";
+        renderScaleEditor();
+        renderGradeOptions();
+        renderSemester();
+        saveLocal();
+      });
+      document
+        .getElementById("restoreDefaults")
+        .addEventListener("click", () => {
+          if (!confirm("Restore default grade scale?")) return;
+          state.gradeScale = structuredClone(defaultScale);
+          renderScaleEditor();
+          renderSemester();
+          saveLocal();
+        });
+
+      // --- Save / Load / Export / Import ---
+      function saveLocal(notify = true) {
+        localStorage.setItem("gpa_state_v1", JSON.stringify(state));
+        if (notify) alert("Saved locally");
+      }
+      function loadLocal(showAlert = true) {
+        const raw = localStorage.getItem("gpa_state_v1");
+        if (!raw) {
+          if (showAlert) alert("No saved data");
+          return;
+        }
+        try {
+          state = JSON.parse(raw);
+          renderAll();
+          if (showAlert) alert("Loaded saved data");
+        } catch (e) {
+          alert("Failed to load");
+        }
+      }
+
+      document
+        .getElementById("saveLocal")
+        .addEventListener("click", () => saveLocal(true));
+      document
+        .getElementById("loadLocal")
+        .addEventListener("click", () => loadLocal(true));
+
+      // Overall stats modal
+      document.getElementById("viewOverall").addEventListener("click", () => {
+        showOverallStats();
+      });
+
+      document.getElementById("closeModal").addEventListener("click", () => {
+        hideOverallStats();
+      });
+
+      // Close modal when clicking outside
+      document.getElementById("overallModal").addEventListener("click", (e) => {
+        if (e.target.id === "overallModal") {
+          hideOverallStats();
+        }
+      });
+
+      // Close modal with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          hideOverallStats();
+        }
+      });
+
+      // export JSON file
+      document.getElementById("exportJSON").addEventListener("click", () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "gpa_state.json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      // import
+      document.getElementById("importJSONBtn").addEventListener("click", () => {
+        document.getElementById("importJSON").click();
+      });
+      document.getElementById("importJSON").addEventListener("change", (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const parsed = JSON.parse(ev.target.result);
+            if (parsed) {
+              state = parsed;
+              selectedYearIdx = Math.min(
+                state.years.length - 1,
+                Math.max(0, selectedYearIdx)
+              );
+              selectedSemesterIdx = 0;
+              renderAll();
+              alert("Imported");
+            }
+          } catch (err) {
+            alert("Invalid JSON");
+          }
+        };
+        reader.readAsText(f);
+      });
+
+      // helper to export current semester as JSON file (document save)
+      // also allow user to download CSV for semester
+      function exportSemesterCSV() {
+        if (selectedYearIdx < 0 || selectedSemesterIdx < 0) return;
+        const sem = state.years[selectedYearIdx].semesters[selectedSemesterIdx];
+        const rows = [
+          ["Course", "Credits", "Letter", "GradeValue", "QualityPoints"],
+        ];
+        for (const c of sem.courses) {
+          const gv = lookupGrade(c.letter) || 0;
+          rows.push([
+            c.name,
+            c.credits,
+            c.letter,
+            gv,
+            (Number(c.credits) || 0) * gv,
+          ]);
+        }
+        const csv = rows
+          .map((r) =>
+            r.map((x) => `"${String(x).replace(/"/g, '""')}"`).join(",")
+          )
+          .join("");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${state.years[selectedYearIdx].label}_${state.years[selectedYearIdx].semesters[selectedSemesterIdx].name}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // --- Utilities ---
+      function escapeHtml(s) {
+        return (s || "")
+          .toString()
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // --- Overall Stats Modal ---
+      function showOverallStats() {
+        const stats = calculateOverallStats();
+        const modal = document.getElementById("overallModal");
+        const statsGrid = document.getElementById("overallStatsGrid");
+        const yearBreakdownTable =
+          document.getElementById("yearBreakdownTable");
+
+        // Populate overall stats cards
+        statsGrid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-value">${stats.overallGPA.toFixed(2)}</div>
+            <div class="stat-label">Cumulative GPA</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.totalAttempted}</div>
+            <div class="stat-label">Total Attempted Credits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.totalEarned}</div>
+            <div class="stat-label">Total Earned Credits</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.totalCourses}</div>
+            <div class="stat-label">Total Course Entries</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.uniqueCourses}</div>
+            <div class="stat-label">Unique Courses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.totalCreditValue.toFixed(2)}</div>
+            <div class="stat-label">Total Quality Points</div>
+          </div>
+        `;
+
+        // Populate year breakdown table
+        yearBreakdownTable.innerHTML = "";
+        state.years.forEach((year, idx) => {
+          const ys = yearStats(idx);
+          const tr = document.createElement("tr");
+
+          // Count courses in this year
+          let yearCourseCount = 0;
+          for (const sem of year.semesters) {
+            yearCourseCount += sem.courses.length;
+          }
+
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(year.label)}</strong></td>
+            <td>${ys.attempted}</td>
+            <td>${ys.earned}</td>
+            <td>${ys.cumulativeGPA.toFixed(3)}</td>
+            <td>${yearCourseCount}</td>
+          `;
+          yearBreakdownTable.appendChild(tr);
+        });
+
+        // Show modal
+        modal.classList.remove("hidden");
+      }
+
+      function hideOverallStats() {
+        const modal = document.getElementById("overallModal");
+        modal.classList.add("hidden");
+      }
+
+      // render everything
+      function renderAll() {
+        renderYears();
+        renderSemesters();
+        renderSemester();
+        renderScaleEditor();
+        saveLocal(false);
+      }
+
+      // initialize with sample data if none
+      (function init() {
+        try {
+          const raw = localStorage.getItem("gpa_state_v1");
+          if (raw) {
+            state = JSON.parse(raw);
+          }
+        } catch (e) {}
+        ensureInitial();
+        renderAll();
+      })();
+    </script>
+  </body>
+</html>
